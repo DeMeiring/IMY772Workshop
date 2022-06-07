@@ -1,0 +1,23 @@
+{
+  "name": "imy772workshop",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DeMeiring/IMY772Workshop.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DeMeiring/IMY772Workshop/issues"
+  },
+  "homepage": "https://github.com/DeMeiring/IMY772Workshop#readme",
+  "dependencies": {
+    "aws-sdk": "^2.1149.0",
+    "dotenv": "^16.0.1"
+  }
+}

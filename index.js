@@ -1,4 +1,5 @@
 const AWS = require('aws-sdk')
+//import { RecognizeCelebritiesCommand } from  "@aws-sdk/client-rekognition";
 require('dotenv').config();
 const bucket= 'workshopfaces';
 const photoSource = 'face_1.jpg';
@@ -9,8 +10,31 @@ const config = new AWS.Config({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     region: process.env.AWS_REGION
   })
-
 const client = new AWS.Rekognition();
+
+async function recognizeCelebrity(celebPhoto, celebBucket){
+  const params = {
+    Image: {
+      S3Object: {
+        Bucket: celebBucket,
+        Name: celebPhoto
+      },
+    },
+  }
+
+  try{
+    client.recognizeCelebrities(params,(err, response)=>{
+      if(err){  
+        console.log(err, err.stack);
+      }else{
+        console.log(JSON.stringify(response));
+      }
+    })
+  }catch(error){
+    console.log('error from detect celbrities '+error);
+  }
+
+}
 
 function detectFaces(bucket, photo){
     const params = {
@@ -20,7 +44,7 @@ function detectFaces(bucket, photo){
             Name: photo
           },
         },
-        Attributes: ['ALL']
+        Attributes: ['ALL'],
       }
 
     client.detectFaces(params, function(err, response) {
@@ -35,6 +59,25 @@ function detectFaces(bucket, photo){
             })
         }
     });
+}
+
+function textRecognition(textPhoto, textBucket){
+  const params = {
+    Image: {
+      S3Object: {
+        Bucket: textBucket,
+        Name: textPhoto
+      },
+    },
+  }
+
+  client.detectText(parmas, (err, res)=>{
+    if(err){
+      console.log(err);
+    }else{
+      console.log(res);
+    }
+  });
 }
 
 
@@ -53,7 +96,7 @@ function compareFaces(buck, source, target){
               Name: target
             },
           },
-          SimilarityThreshold: 70
+          SimilarityThreshold: 0
     }
 
 
@@ -72,5 +115,6 @@ function compareFaces(buck, source, target){
 }
 
 
-compareFaces(bucket, photoSource, photoTarget);
+//compareFaces(bucket, photoSource, photoTarget);
 //detectFaces(bucket, photoSource);
+recognizeCelebrity('Brad_Pitt.jpg',bucket)

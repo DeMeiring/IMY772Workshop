@@ -1,16 +1,35 @@
-const AWS = require('aws-sdk')
-//import { RecognizeCelebritiesCommand } from  "@aws-sdk/client-rekognition";
+const AWS = require('aws-sdk');
+const ps = require('prompt-sync');
 require('dotenv').config();
-const bucket= 'workshopfaces';
-const photoSource = 'face_1.jpg';
-const photoTarget = 'face_1 - Copy.jpg';
-const imageConfidence = 0;
 const config = new AWS.Config({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     region: process.env.AWS_REGION
   })
+AWS.config.update(config);
+
 const client = new AWS.Rekognition();
+const docClient = new AWS.DynamoDB.DocumentClient();
+
+function registerStudent(studentID, studentNumber, studentTitleName, universityName){
+  const params = {
+    TableName: "student",
+    Item: {
+      "student_id":studentID,
+      "student_number": studentNumber,
+      "student_title_name": studentTitleName,
+      "university_name": universityName,
+    }
+  };
+
+  docClient.put(params, function(err, data) {
+    if(err){
+      console.log("ERROR", err);
+    }else{
+      console.log(`Student number: ${studentNumber} has been registered to the student database`);
+    }
+  });
+}
 
 async function recognizeCelebrity(celebPhoto, celebBucket){
   const params = {
@@ -71,18 +90,23 @@ function textRecognition(textPhoto, textBucket){
     },
   }
 
-  client.detectText(parmas, (err, res)=>{
-    if(err){
-      console.log(err);
-    }else{
-      console.log(res);
-    }
-  });
+    client.detectText(params, (err, res)=>{
+      if(err){
+        console.log(err);
+      }else{
+        //indexes uni=1, credentials=3, studentNumber=4
+        let uni = res.TextDetections[1].DetectedText;
+        let credentails = res.TextDetections[3].DetectedText;
+        let strStudentNumber = res.TextDetections[4].DetectedText;
+        let studentNumber = parseInt(strStudentNumber);
+
+        registerStudent(studentNumber, studentNumber, credentails, uni);
+      }
+    });
 }
 
 
 function compareFaces(buck, source, target){
-
     const params = {
         SourceImage: {
             S3Object: {
@@ -115,6 +139,20 @@ function compareFaces(buck, source, target){
 }
 
 
-//compareFaces(bucket, photoSource, photoTarget);
-//detectFaces(bucket, photoSource);
-recognizeCelebrity('Brad_Pitt.jpg',bucket)
+async function main(){
+  
+  const prompt = ps();
+  let choice = prompt('[1]scan an image for celbrity information and matches [2]scan a student card and verify their credentials: ');
+  if(choice == 1){
+    let fileName = prompt('Please enter the filename that you would like to process( provided it has been uploaded onto the S3 bucket)');
+    let bucketName = prompt('Please enter the name of the bucket containing the image: ');
+    await recognizeCelebrity(fileName, bucketName);
+  }else if(choice ==2){
+    let textFileName = prompt('Please enter the filename that you would like to process( provided it has been uploaded onto the S3 bucket)');
+    let textBucketName = prompt('Please enter the name of the bucket containing the image: ');
+    textRecognition(textFileName, textBucketName);
+  }
+  
+}
+
+main();

@@ -46,38 +46,30 @@ async function recognizeCelebrity(celebPhoto, celebBucket){
       if(err){  
         console.log(err, err.stack);
       }else{
-        console.log(JSON.stringify(response));
+        let responses = response.CelebrityFaces.length;
+        console.log(`It has been determined that there were ${responses}. The following is a summary on the celbrities that could be matched \n`);
+        response.CelebrityFaces.forEach(function(item, index){
+          let celebName = item.Name;
+          let faceConfidence = item.Face.Confidence;
+          let emotion = item.Face.Emotions[0].Type;
+          let emotionConfidence = item.Face.Emotions[0].Confidence;
+          let gender = item.KnownGender;
+          let pronoun = '';
+          if(gender == 'Female'){
+            pronoun = 'she';
+          }else{
+            pronoun = 'he';
+          }
+          console.log('\n');
+          console.log(`We are ${faceConfidence} sure that we have detected ${celebName} \nWe have also determined that ${pronoun} is feeling ${emotion}...\n and you can trust us, after all we're ${emotionConfidence}% sure of it!`);
+          console.log('===========================================================================================================================================');
+        });
       }
     })
   }catch(error){
     console.log('error from detect celbrities '+error);
   }
 
-}
-
-function detectFaces(bucket, photo){
-    const params = {
-        Image: {
-          S3Object: {
-            Bucket: bucket,
-            Name: photo
-          },
-        },
-        Attributes: ['ALL'],
-      }
-
-    client.detectFaces(params, function(err, response) {
-        if (err) {
-            console.log(err, err.stack); // an error occurred
-        }else {
-            console.log(`Detected faces for: ${photo}`);
-            response.FaceDetails.forEach(data => {
-                let low  = data.AgeRange.Low
-                let high = data.AgeRange.High
-                console.log(data.Confidence);
-            })
-        }
-    });
 }
 
 function textRecognition(textPhoto, textBucket){
@@ -105,50 +97,16 @@ function textRecognition(textPhoto, textBucket){
     });
 }
 
-
-function compareFaces(buck, source, target){
-    const params = {
-        SourceImage: {
-            S3Object: {
-              Bucket: buck,
-              Name: source
-            },
-          },
-          TargetImage: {
-            S3Object: {
-              Bucket: bucket,
-              Name: target
-            },
-          },
-          SimilarityThreshold: 0
-    }
-
-
-    client.compareFaces(params, function(err, response) {
-        if (err) {
-          console.log(err, err.stack); // an error occurred
-        } else {
-          response.FaceMatches.forEach(data => {
-            let position   = data.Face.BoundingBox
-            let similarity = data.Similarity
-            console.log(JSON.stringify(data));
-            console.log(data.Similarity);
-          }) // for response.faceDetails
-        } // if
-      });
-}
-
-
 async function main(){
   
   const prompt = ps();
   let choice = prompt('[1]scan an image for celbrity information and matches [2]scan a student card and verify their credentials: ');
   if(choice == 1){
-    let fileName = prompt('Please enter the filename that you would like to process( provided it has been uploaded onto the S3 bucket)');
+    let fileName = prompt('Please enter the filename that you would like to process( provided it has been uploaded onto the S3 bucket): ');
     let bucketName = prompt('Please enter the name of the bucket containing the image: ');
     await recognizeCelebrity(fileName, bucketName);
   }else if(choice ==2){
-    let textFileName = prompt('Please enter the filename that you would like to process( provided it has been uploaded onto the S3 bucket)');
+    let textFileName = prompt('Please enter the filename that you would like to process( provided it has been uploaded onto the S3 bucket): ');
     let textBucketName = prompt('Please enter the name of the bucket containing the image: ');
     textRecognition(textFileName, textBucketName);
   }

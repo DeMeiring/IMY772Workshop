@@ -47,9 +47,15 @@ async function recognizeCelebrity(celebPhoto, celebBucket){
         console.log(err, err.stack);
       }else{
         let responses = response.CelebrityFaces.length;
-        console.log(`It has been determined that there were ${responses}. The following is a summary on the celbrities that could be matched \n`);
+        if(responses>1){
+          console.log(`It has been determined that there were ${responses} responses. The following is a summary on the celebrities that could be matched \n`);
+        }else{
+          console.log(`It has been determined that there is ${responses} response. The following is a summary on the celebrities that could be matched \n`);
+        }
+        
         response.CelebrityFaces.forEach(function(item, index){
           let celebName = item.Name;
+          let URLS = item.Urls;
           let faceConfidence = item.Face.Confidence;
           let emotion = item.Face.Emotions[0].Type;
           let emotionConfidence = item.Face.Emotions[0].Confidence;
@@ -61,13 +67,13 @@ async function recognizeCelebrity(celebPhoto, celebBucket){
             pronoun = 'he';
           }
           console.log('\n');
-          console.log(`We are ${faceConfidence} sure that we have detected ${celebName} \nWe have also determined that ${pronoun} is feeling ${emotion}...\n and you can trust us, after all we're ${emotionConfidence}% sure of it!`);
+          console.log(`We are ${faceConfidence} sure that we have detected ${celebName} \nWe have also determined that ${pronoun} is feeling ${emotion}...\n and you can trust us, after all we're ${emotionConfidence}% sure of it! \n To learn more about this celeb please see ${URLS}`);
           console.log('===========================================================================================================================================');
         });
       }
     })
   }catch(error){
-    console.log('error from detect celbrities '+error);
+    console.log('error from detect celebrities '+error);
   }
 
 }
@@ -100,7 +106,7 @@ function textRecognition(textPhoto, textBucket){
 async function main(){
   
   const prompt = ps();
-  let choice = prompt('[1]scan an image for celbrity information and matches [2]scan a student card and verify their credentials: ');
+  let choice = prompt('[1]scan an image for celebrity information and matches [2]scan a student card and verify their credentials: ');
   if(choice == 1){
     let fileName = prompt('Please enter the filename that you would like to process( provided it has been uploaded onto the S3 bucket): ');
     let bucketName = prompt('Please enter the name of the bucket containing the image: ');

@@ -1,0 +1,15 @@
+This cli tool allows the user to scan an image that is hosted on a S3 bucket provided the bucket as well as the image is publicly accessible (please see https://aws.amazon.com/premiumsupport/knowledge-center/read-access-objects-s3-bucket/ to make objects in a bucket publicly accessible). This tool uses nodejs v16.15.0 as well as the aws-sdk package as well as prompt-sync and dotenv, all of which are downloadable through npm. Both the celebrity scanning as well as the student card registration make use of AWS Rekognition. 
+
+Setup:
+    Please create a .env file and put it in the same directory as index.js. The env file must contain the security credentials of a valid aws user account;
+        The env file must be in the form:
+        AWS_ACCESS_KEY_ID = *User_Access_Key*
+        AWS_SECRET_ACCESS_KEY = *User_Secret_Access_Key*
+        AWS_REGION = *User_Region*
+    After setup of the env file please open the terminal within the direcotry containing the package.json file and run the npm i command.
+    The packages that will be downloaded when this command is run is:
+        1 aws-sdk
+        2 dotenv
+        3 prompt-sync
+
+Link to the demo video: https://drive.google.com/file/d/1t1J-esj56gTyrMhU0PslCNAqmwoIG-p5/view?usp=sharing

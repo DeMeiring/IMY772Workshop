@@ -11,6 +11,7 @@ Setup:
         1 aws-sdk
         2 dotenv
         3 prompt-sync
+    Please ensure that the images stored on the S3 bucket is publicly accessable and that there is already a dynamoDB table called 'student' present for your aws user, if there is not please create a table.
 
 Link to the demo video: https://drive.google.com/file/d/1t1J-esj56gTyrMhU0PslCNAqmwoIG-p5/view?usp=sharing
 Link to the repository: https://github.com/DeMeiring/IMY772Workshop.git
